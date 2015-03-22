@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+
+<title></title>
+
+<script type="text/javascript">
+window.onload = function() {
+  var imgs = document.getElementsByTagName('img'), i, img;
+  for (i = 0; i < imgs.length; i++) {
+    img = imgs[i];
+    // center an image if it is the only element of its parent
+    if (img.parentElement.childElementCount === 1)
+      img.parentElement.style.textAlign = 'center';
+  }
+};
+</script>
+
+
+
+<!-- MathJax scripts -->
+<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+<style type="text/css">
+body, td {
+   font-family: sans-serif;
+   background-color: white;
+   font-size: 13px;
+}
+
+body {
+  max-width: 800px;
+  margin: auto;
+  padding: 1em;
+  line-height: 20px;
+}
+
+tt, code, pre {
+   font-family: 'DejaVu Sans Mono', 'Droid Sans Mono', 'Lucida Console', Consolas, Monaco, monospace;
+}
+
+h1 {
+   font-size:2.2em;
+}
+
+h2 {
+   font-size:1.8em;
+}
+
+h3 {
+   font-size:1.4em;
+}
+
+h4 {
+   font-size:1.0em;
+}
+
+h5 {
+   font-size:0.9em;
+}
+
+h6 {
+   font-size:0.8em;
+}
+
+a:visited {
+   color: rgb(50%, 0%, 50%);
+}
+
+pre, img {
+  max-width: 100%;
+}
+pre {
+  overflow-x: auto;
+}
+pre code {
+   display: block; padding: 0.5em;
+}
+
+code {
+  font-size: 92%;
+  border: 1px solid #ccc;
+}
+
+code[class] {
+  background-color: #F8F8F8;
+}
+
+table, td, th {
+  border: none;
+}
+
+blockquote {
+   color:#666666;
+   margin:0;
+   padding-left: 1em;
+   border-left: 0.5em #EEE solid;
+}
+
+hr {
+   height: 0px;
+   border-bottom: none;
+   border-top-width: thin;
+   border-top-style: dotted;
+   border-top-color: #999999;
+}
+
+@media print {
+   * {
+      background: transparent !important;
+      color: black !important;
+      filter:none !important;
+      -ms-filter: none !important;
+   }
+
+   body {
+      font-size:12pt;
+      max-width:100%;
+   }
+
+   a, a:visited {
+      text-decoration: underline;
+   }
+
+   hr {
+      visibility: hidden;
+      page-break-before: always;
+   }
+
+   pre, blockquote {
+      padding-right: 1em;
+      page-break-inside: avoid;
+   }
+
+   tr, img {
+      page-break-inside: avoid;
+   }
+
+   img {
+      max-width: 100% !important;
+   }
+
+   @page :left {
+      margin: 15mm 20mm 15mm 10mm;
+   }
+
+   @page :right {
+      margin: 15mm 10mm 15mm 20mm;
+   }
+
+   p, h2, h3 {
+      orphans: 3; widows: 3;
+   }
+
+   h2, h3 {
+      page-break-after: avoid;
+   }
+}
+</style>
+
+
+
+</head>
+
+<body>
+<p>##Setup work: file download, path creation, package load, etc.
+library(dplyr)
+library(knitr)
+library(markdown)
+setwd(&ldquo;C:/Users/gregory.j.cloonan/Documents/Data Science Class/Getting Cleaning Data/Class Project&rdquo;)
+url &lt;- &ldquo;<a href="https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip">https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip</a>&rdquo;
+download.file(url, destfile = &ldquo;wearabledata.zip&rdquo;)
+unzip(&ldquo;wearabledata.zip&rdquo;)
+fp &lt;- file.path(&ldquo;./UCI HAR Dataset&rdquo;)</p>
+
+<p>##Reading in germane data frames
+df.subject.train &lt;- read.table(file.path(fp, &ldquo;train&rdquo;, &ldquo;subject_train.txt&rdquo;), header = F)
+df.subject.test &lt;- read.table(file.path(fp, &ldquo;test&rdquo;, &ldquo;subject_test.txt&rdquo;), header = F)
+df.activity.train &lt;- read.table(file.path(fp, &ldquo;train&rdquo;, &ldquo;Y_train.txt&rdquo;), header = F)
+df.activity.test &lt;- read.table(file.path(fp, &ldquo;test&rdquo;, &ldquo;Y_test.txt&rdquo;), header = F)
+df.features.train &lt;- read.table(file.path(fp, &ldquo;train&rdquo;, &ldquo;X_train.txt&rdquo;), header = F)
+df.features.test &lt;- read.table(file.path(fp, &ldquo;test&rdquo;, &ldquo;X_test.txt&rdquo;), header = F)
+feature.names &lt;- read.table(file.path(fp, &ldquo;features.txt&rdquo;), header = F)
+activity.names &lt;- read.table(file.path(fp, &ldquo;activity_labels.txt&rdquo;), header = F)</p>
+
+<p>##Merging training &amp; testing data sets
+df.subject &lt;- rbind(df.subject.train, df.subject.test)
+df.activity &lt;- rbind(df.activity.train, df.activity.test)
+df.features &lt;- rbind(df.features.train, df.features.test)</p>
+
+<p>##Renaming variables
+df.subject &lt;- rename(df.subject, subject = V1)
+df.activity &lt;- rename(df.activity, activity = V1)
+names(df.features) &lt;- feature.names$V2</p>
+
+<p>##Merging all into one data set
+df.combined &lt;- cbind(df.features, df.subject, df.activity)</p>
+
+<p>##Subsetting our combined data set by mean and std variables only
+sub.feature.names &lt;- as.character(feature.names$V2[grep(&ldquo;mean\(\)|std\(\)&rdquo;, feature.names$V2)])
+sub.variables &lt;- c(sub.feature.names, &ldquo;subject&rdquo;, &ldquo;activity&rdquo;)
+sub.df.combined &lt;- subset(df.combined, select = sub.variables)</p>
+
+<p>##Replacing activity observations with more descriptive labels
+names(activity.names) &lt;- c(&ldquo;activity&rdquo;, &ldquo;activity.desc&rdquo;)
+sub.df.2 &lt;- merge(sub.df.combined, activity.names, by = &ldquo;activity&rdquo;, all.x = T)
+sub.df.3 &lt;- sub.df.2[2:69] %&gt;% rename(activity = activity.desc)</p>
+
+<p>##Using gsub to gives features more descriptive names
+names(sub.df.3) &lt;- gsub(&ldquo;Acc&rdquo;, &ldquo;Accelerometer&rdquo;, names(sub.df.3))
+names(sub.df.3) &lt;- gsub(&ldquo;Gyro&rdquo;, &ldquo;Gyroscope&rdquo;, names(sub.df.3))
+names(sub.df.3) &lt;- gsub(&ldquo;Mag&rdquo;, &ldquo;Magnitude&rdquo;, names(sub.df.3))
+names(sub.df.3) &lt;- gsub(&ldquo;<sup>t&rdquo;,</sup> &ldquo;time&rdquo;, names(sub.df.3))
+names(sub.df.3) &lt;- gsub(&ldquo;<sup>f&rdquo;,</sup> &ldquo;frequency&rdquo;, names(sub.df.3))</p>
+
+<p>##Creating tidy data set with subject &amp; activity variable averages
+tidy.df &lt;- aggregate(. ~subject + activity, sub.df.3, mean)
+tidy.df &lt;- arrange(tidy.df, subject, activity)</p>
+
+<p>##Finishing steps: publishing tidy data table &amp; codebook
+write.table(tidy.df, file = &ldquo;tidydf.txt&rdquo;, row.name = F)
+knit(&ldquo;run_analysis.R&rdquo;, output = &ldquo;CodeBook.md&rdquo;, encoding = &ldquo;ISO8859-1&rdquo;, quiet = T)
+markdownToHTML(&ldquo;CodeBook.md&rdquo;, &ldquo;CodeBook.html&rdquo;)</p>
+
+</body>
+
+</html>
